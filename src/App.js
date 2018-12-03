@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import L from 'leaflet';
 import { Map, TileLayer, Marker, Popup } from 'react-leaflet';
+import { Card, Button, Form, FormGroup, Label, Input } from 'reactstrap';
 
 import './App.css';
 
@@ -25,7 +26,11 @@ class App extends Component {
     myIcon: L.icon({
       iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-icon-2x.png',
       iconSize: [40, 60]
-    })
+    }),
+    inputField: {
+      placetype: 'Restroom',
+      about: ''
+    }
   }
 
   componentDidMount() {
@@ -61,22 +66,71 @@ class App extends Component {
     });
   }
 
+  // handle submit button
+  formSubmitted = (event) => {
+    event.preventDefault();
+    console.log(this.state.inputField);
+  }
+
+  // handle input
+  // https://reactjs.org/docs/forms.html#handling-multiple-inputs
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Object_initializer#Computed_property_names
+  // NOTE: don't directly set event inside setState(),
+  // we group form fields as single state, 
+  // need to use ...prevState to concat each field, else only late field show,
+  // [name]: value will named and assign value by form attibute name and value
+  valueChanged =(event) => {
+    const { name, value } = event.target;
+    this.setState((prevState) => ({
+      inputField: {
+        ...prevState.inputField,
+        [name]: value
+      }
+    }))
+  }
   render() {
     const position = [this.state.location.lat, this.state.location.lng]
     return (
-      <Map className='map' center={position} zoom={this.state.zoom}>
-        <TileLayer
-          attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        <Marker 
-        position={position}
-        icon={this.state.myIcon}>
-          <Popup>
-            A pretty CSS3 popup. <br /> Easily customizable.
-          </Popup>
-        </Marker>
-      </Map>
+      <div className='map'>
+        <Map className='map' center={position} zoom={this.state.zoom}>
+          <TileLayer
+            attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+          <Marker 
+          position={position}
+          icon={this.state.myIcon}>
+            <Popup>
+              A pretty CSS3 popup. <br /> Easily customizable.
+            </Popup>
+          </Marker>
+        </Map>
+        <Card body className='message-form'>
+          <Form onSubmit={this.formSubmitted}>
+            <FormGroup>
+              <Label for="placetype">What type of place?</Label>
+              <Input 
+              onChange={this.valueChanged}
+              type="select" 
+              name="placetype" 
+              id="placetype">
+                <option>Restroom</option>
+                <option>Drinking fountain</option>
+              </Input>
+            </FormGroup>
+            <FormGroup>
+              <Label for="about">Write about this place</Label>
+              <Input 
+                onChange={this.valueChanged}
+                type="textarea" 
+                name="about" 
+                id="about" 
+                placeholder="Enter info about this location" />
+            </FormGroup>
+            <Button type='submit' color="info" block disabled={!this.state.hasUserLocation}>Submit / Update</Button>
+          </Form>
+        </Card>
+      </div>
     );
   }
 }
