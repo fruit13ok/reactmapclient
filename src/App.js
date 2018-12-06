@@ -30,7 +30,8 @@ class App extends Component {
    inputField: {
      placetype: 'Restroom',
      about: ''
-   }
+   },
+   places: []
  }
 
  componentDidMount() {
@@ -64,28 +65,79 @@ class App extends Component {
        });
      })
    });
+   // get places from DB
+   fetch('http://localhost:5000/')
+     .then(res => res.json())
+     .then(places => {
+       places.forEach(function(place) {
+         console.log(place.placetype);
+         console.log(place.about);
+         console.log(place.lat);
+         console.log(place.lng);
+         console.log(place._id);
+       });
+       this.setState({
+         places: places
+       });
+     })
  }
 
  // handle submit button
  formSubmitted = (event) => {
    event.preventDefault();
    console.log('InputField: ',this.state.inputField);
+   console.log('places: ',this.state.places);
    const place = {
      placetype: this.state.inputField.placetype,
-     about: this.state.inputField.about
+     about: this.state.inputField.about,
+     lat: this.state.location.lat,
+     lng: this.state.location.lng
    };
+   console.log('place: ',place);
    // the fetch way
    fetch('http://localhost:5000/place', {
      method: 'post',
      headers: {
-       'content-type': 'application/json',
+       'Content-Type': 'application/json',
+       'Accept': 'application/json'
      },
      body: JSON.stringify(place)
-   }).then(function(response) {
+   }).then((response) => {
      return response.json();
-   }).then(function(responsejson) {
+   }).then((responsejson) => {
      console.log('Responsed: ', responsejson);
-   });
+     // get places from DB
+     // either way works, people said use return fetch promise is better
+     // fetch('http://localhost:5000/')
+     // .then(res => res.json())
+     // .then(places => {
+     //   places.forEach(function(place) {
+     //     console.log(place.placetype);
+     //     console.log(place.about);
+     //     console.log(place.lat);
+     //     console.log(place.lng);
+     //     console.log(place._id);
+     //   });
+     //   this.setState({
+     //     places: places
+     //   });
+     // })
+     return fetch('http://localhost:5000/')
+   })
+   .then(res => res.json())
+   .then(places => {
+     places.forEach(function(place) {
+       console.log(place.placetype);
+       console.log(place.about);
+       console.log(place.lat);
+       console.log(place.lng);
+       console.log(place._id);
+     });
+     this.setState({
+       places: places
+     });
+   })
+   ;
    // the axios way
    // axios.post('http://localhost:5000/place', place)
    //   .then(response => {
@@ -110,6 +162,8 @@ class App extends Component {
      }
    }))
  }
+ // add user marker after receive user location,
+ // add places marker base on state places array
  render() {
    const position = [this.state.location.lat, this.state.location.lng]
    return (
@@ -119,13 +173,30 @@ class App extends Component {
            attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
          />
-         <Marker
-         position={position}
-         icon={this.state.myIcon}>
-           <Popup>
-             A pretty CSS3 popup. <br /> Easily customizable.
-           </Popup>
-         </Marker>
+         {
+           this.state.hasUserLocation ?
+           <Marker
+             position={position}
+             icon={this.state.myIcon}>
+             <Popup>
+               Your current location
+             </Popup>
+           </Marker> : ''
+         }
+         {
+           this.state.places.map((place) => {
+             return (
+               <Marker
+               key={place._id}
+                 position={[place.lat, place.lng]}
+                 icon={this.state.myIcon}>
+                 <Popup>
+                   {place.placetype} <br /> {place.about}
+                 </Popup>
+               </Marker>
+             )
+           })
+         }
        </Map>
        <Card body className='message-form'>
          <Form onSubmit={this.formSubmitted}>
