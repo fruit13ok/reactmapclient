@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import L from 'leaflet';
-import { Map, TileLayer, Marker, Popup } from 'react-leaflet';
+import { Circle, CircleMarker, Map, TileLayer, Marker, Popup } from 'react-leaflet';
 import { Card, Button, Form, FormGroup, Label, Input } from 'reactstrap';
 // import axios from 'axios';
+import restroomIconUrl from './restroom.svg';
+import waterIconUrl from './water.svg';
 import './App.css';
 
 // default example icon not working,
@@ -23,9 +25,17 @@ class App extends Component {
    },
    hasUserLocation: false,
    zoom: 3,
-   myIcon: L.icon({
-     iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-icon-2x.png',
-     iconSize: [40, 60]
+  //  myIcon: L.icon({
+  //    iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-icon-2x.png',
+  //    iconSize: [40, 60]
+  //  }),
+   restroomIcon: L.icon({
+     iconUrl: restroomIconUrl,
+     iconSize: [60, 90]
+   }),
+   waterIcon: L.icon({
+     iconUrl: waterIconUrl,
+     iconSize: [60, 90]
    }),
    inputField: {
      placetype: 'Restroom',
@@ -162,6 +172,36 @@ class App extends Component {
      }
    }))
  }
+ handleDeleteMarker = (param, event) => {
+  // alert('param: '+param);
+  fetch('http://localhost:5000/place/'+param, {
+     method: 'DELETE',
+     headers: {
+       'Content-Type': 'application/json',
+       'Accept': 'application/json'
+     },
+    //  body: JSON.stringify(place)
+   }).then((response) => {
+     return response.json();
+   }).then((responsejson) => {
+     console.log('Responsed: ', responsejson);
+     return fetch('http://localhost:5000/')
+   })
+   .then(res => res.json())
+   .then(places => {
+     places.forEach(function(place) {
+       console.log(place.placetype);
+       console.log(place.about);
+       console.log(place.lat);
+       console.log(place.lng);
+       console.log(place._id);
+     });
+     this.setState({
+       places: places
+     });
+   })
+   ;
+ }
  // add user marker after receive user location,
  // add places marker base on state places array
  render() {
@@ -175,24 +215,37 @@ class App extends Component {
          />
          {
            this.state.hasUserLocation ?
-           <Marker
-             position={position}
-             icon={this.state.myIcon}>
-             <Popup>
-               Your current location
-             </Popup>
-           </Marker> : ''
+          //  <Marker
+          //    position={position}
+          //    icon={this.state.myIcon}>
+          //    <Popup>
+          //      Your current location
+          //    </Popup>
+          //  </Marker> : ''
+            // change current location marker to a circle
+            <CircleMarker center={position} color="red" radius={10}>
+              <Circle center={position} fillColor="blue" radius={100} />
+              <Popup><span>Your current location</span></Popup>
+            </CircleMarker> : ''
          }
          {
            this.state.places.map((place) => {
              return (
                <Marker
-               key={place._id}
-                 position={[place.lat, place.lng]}
-                 icon={this.state.myIcon}>
-                 <Popup>
-                   {place.placetype} <br /> {place.about}
-                 </Popup>
+                key={place._id}
+                position={[place.lat, place.lng]}
+                icon={
+                  place.placetype === 'Restroom' ?
+                  this.state.restroomIcon :
+                  this.state.waterIcon
+                }
+                >
+                <Popup>
+                  <div>
+                    <p>{place.placetype} <br /> {place.about} <br /> {place._id}</p>
+                    <button onClick={(e) => this.handleDeleteMarker(place._id, e)}>Delete marker!</button>
+                  </div>
+                </Popup>
                </Marker>
              )
            })
@@ -203,12 +256,12 @@ class App extends Component {
            <FormGroup>
              <Label for="placetype">What type of place?</Label>
              <Input
-             onChange={this.valueChanged}
-             type="select"
-             name="placetype"
-             id="placetype">
-               <option>Restroom</option>
-               <option>Drinking fountain</option>
+              onChange={this.valueChanged}
+              type="select"
+              name="placetype"
+              id="placetype">
+              <option>Restroom</option>
+              <option>Drinking fountain</option>
              </Input>
            </FormGroup>
            <FormGroup>
