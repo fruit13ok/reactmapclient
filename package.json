@@ -2,6 +2,10 @@
   "name": "reactmapclient",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "10.7.0",
+    "npm": "6.2.0"
+  },
   "dependencies": {
     "axios": "^0.18.0",
     "bootstrap": "^4.1.3",
