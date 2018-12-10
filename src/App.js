@@ -76,7 +76,7 @@ class App extends Component {
      })
    });
    // get places from DB
-   fetch('http://localhost:5000/')
+   fetch('https://shrouded-dusk-26930.herokuapp.com/' || 'http://localhost:5000/')
      .then(res => res.json())
      .then(places => {
        places.forEach(function(place) {
@@ -105,7 +105,7 @@ class App extends Component {
    };
    console.log('place: ',place);
    // the fetch way
-   fetch('http://localhost:5000/place', {
+   fetch('https://shrouded-dusk-26930.herokuapp.com/place' || 'http://localhost:5000/place', {
      method: 'post',
      headers: {
        'Content-Type': 'application/json',
@@ -132,7 +132,7 @@ class App extends Component {
      //     places: places
      //   });
      // })
-     return fetch('http://localhost:5000/')
+     return fetch('https://shrouded-dusk-26930.herokuapp.com/place' || 'http://localhost:5000/')
    })
    .then(res => res.json())
    .then(places => {
@@ -174,7 +174,7 @@ class App extends Component {
  }
  handleDeleteMarker = (param, event) => {
   // alert('param: '+param);
-  fetch('http://localhost:5000/place/'+param, {
+  fetch('https://shrouded-dusk-26930.herokuapp.com/place'+param || 'http://localhost:5000/place/'+param, {
      method: 'DELETE',
      headers: {
        'Content-Type': 'application/json',
@@ -185,7 +185,7 @@ class App extends Component {
      return response.json();
    }).then((responsejson) => {
      console.log('Responsed: ', responsejson);
-     return fetch('http://localhost:5000/')
+     return fetch('https://shrouded-dusk-26930.herokuapp.com/' || 'http://localhost:5000/')
    })
    .then(res => res.json())
    .then(places => {
