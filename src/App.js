@@ -174,7 +174,7 @@ class App extends Component {
  }
  handleDeleteMarker = (param, event) => {
   // alert('param: '+param);
-  fetch('https://shrouded-dusk-26930.herokuapp.com/place'+param || 'http://localhost:5000/place/'+param, {
+  fetch('https://shrouded-dusk-26930.herokuapp.com/place/'+param || 'http://localhost:5000/place/'+param, {
      method: 'DELETE',
      headers: {
        'Content-Type': 'application/json',
