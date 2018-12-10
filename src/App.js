@@ -132,7 +132,7 @@ class App extends Component {
      //     places: places
      //   });
      // })
-     return fetch('https://shrouded-dusk-26930.herokuapp.com/place' || 'http://localhost:5000/')
+     return fetch('https://shrouded-dusk-26930.herokuapp.com/' || 'http://localhost:5000/')
    })
    .then(res => res.json())
    .then(places => {
